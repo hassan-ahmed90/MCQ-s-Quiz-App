@@ -1,5 +1,5 @@
-import 'dart:html';
 
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:mcqs_app/quiz_brain.dart';
 
@@ -10,8 +10,42 @@ class QuizPage extends StatefulWidget {
 }
 class _QuizPageState extends State<QuizPage> {
   QuizBrain brain = QuizBrain();
-
   List <Icon> scoreKeeper=[];
+  void check(bool userAns){
+    bool correctAns= brain.getAnswers();
+    if(brain.isFinished()==true){
+      Alert(
+        context: context,
+        type: AlertType.error,
+        title: "Finished",
+        desc: "You have reached end of the Quiz.",
+        buttons: [
+          DialogButton(
+            child: Text(
+              "Cancel",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            onPressed: () => Navigator.pop(context),
+            width: 120,
+          )
+        ],
+      ).show();
+      brain.reset();
+      scoreKeeper=[];
+
+    }else{
+      setState(() {
+        if(userAns==correctAns){
+          scoreKeeper.add(Icon(Icons.check,color: Colors.green,));
+        }
+        else{
+          scoreKeeper.add(Icon(Icons.close,color: Colors.red,));
+        }
+        brain.nextQuestion();
+
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,12 +56,15 @@ class _QuizPageState extends State<QuizPage> {
         children: [
           Expanded(
               flex: 5,
-              child: Container(
-                color: Colors.black,
-                child: Center(
-                  child: Text(
-                    brain.getQuestion(),
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  color: Colors.black,
+                  child: Center(
+                    child: Text(
+                      brain.getQuestion(),
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
                   ),
                 ),
               )),
@@ -36,17 +73,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10),
             child: InkWell(
               onTap: () {
-                bool correctAns= brain.getAnswers();
-                if(correctAns==true){
-                  scoreKeeper.add(Icon(Icons.check,color: Colors.green,));
-                }
-                else{
-                  scoreKeeper.add(Icon(Icons.close,color: Colors.red,));
-                }
-                setState(() {
-                  brain.nextQuestion();
-
-                });
+                check(true);
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -66,16 +93,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10),
             child: InkWell(
               onTap: () {
-                bool correctAns= brain.getAnswers();
-                if(correctAns==false){
-                  scoreKeeper.add(Icon(Icons.check,color: Colors.green,));
-                }
-                else{
-                  scoreKeeper.add(Icon(Icons.close,color: Colors.red,));
-                }
-                setState(() {
-                  brain.nextQuestion();
-                });
+               check(false);
               },
               child: Container(
                 decoration: BoxDecoration(
